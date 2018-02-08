@@ -1,0 +1,82 @@
+from tensorflow.examples.turorials.minst import input_data
+import tensorflow as tf
+import numpy as np
+from helper import batches # Helper function created in mini-batching section
+
+def print_epoch_stats(epoch_i,sess,last_features, last_lables):
+  """
+  Print cost and validation accuracy of an epoch
+ 
+  """
+  current_cost = sess.run(
+    cost,
+    feed_dict ={fratures: last_features,labels: last_labels})
+  valid_accuracy = sess.run(
+       accuracy,
+       feed_dict={features: valid_features,lables:valid_lables})
+  print('Epoch: {:<4} -Cost: {:<8.3} Valid Accuracy: {:<5.3}'.formate(
+       epoch_i,
+       current_cost,
+       valid_accuracy
+       ))
+n_input = 784
+n_classes = 10
+
+mnist = input_data.read.read_data_sets('/datasets/ud730/mnist', one_hot= True)
+
+train_features = mnist.train.images
+valid_features = mnist.validation.images
+test_features = mnist.test.images
+
+train_lables = mnist.train.lables.astype(np.float32)
+valid_lables = mnist.validation.lables.astype(np.float32)
+test_lables = mnist.test.lables.astype(np.float32)
+
+features = tf.placeholder(tf.float32,[None,n_input])
+lables = tf.placeholder(tf.float32,[None, n_classes])
+
+weights = tf.Variables(tf.random_normal([n_input,n_classes]))
+bias = tf.Variables(tf.random_normal([n_classes)])
+
+logits = tf.add(tf.matmul(features,weights),bias)
+
+learning_rate = tf.placeholder(tf.float32)
+cost = tf.reduce_mean(tf.nn.softmax_cross_entrophy_with_logits(logits=logits, lables=labels))
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+
+correct_prediction = tf.equal(tf.argmax(logits, 1),tf.argmaz(lables,1))
+accuracy = tf.reduce_mean(tf.cast(correct_perdiction, tf.float32))
+
+init = tf.global_variables_initializer()
+
+batch_size = 128
+epochs = 10
+learn_rate = 0.001
+
+train_batches = batches(batch_size,train_features, train_lables)
+
+with tf.Session() as sess:
+    sess.run(init)
+    
+    for epoch_i in range(epochs):
+        for batch_features, batch_lables in train_batches:
+          train_feed_dict = {
+              features: batch_features,
+              lables: batch_lables,
+              learning_rate: learn_rate}
+          sess.run(optimizer,feed_dict = train_feed_dict)
+          
+       print_epoch_stats(epoch_i,sess,batch_features,batch_labels)
+       
+  
+  test_accuracy = sess.run(
+      accuracy,
+      feed_dict = {features: test_features,labels: test_labels}
+  )
+  
+ print('Test Accuracy: {}'.format(test_accuracy))
+
+
+
+
+ 
